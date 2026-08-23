@@ -8,3 +8,6 @@ passes. Release Please branches are excluded because each product's release work
 merges those pull requests itself.
 
 The organization ruleset applies this workflow to Chio Labs public repositories.
+
+Draft and fork-based pull requests are intentionally excluded. Release Please pull requests remain
+owned by each product's release workflow.
