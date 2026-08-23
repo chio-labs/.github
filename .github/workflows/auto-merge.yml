@@ -1,0 +1,29 @@
+name: Request Auto-Merge
+
+on:
+  pull_request_target:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  request-auto-merge:
+    if: >-
+      !github.event.pull_request.draft &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      !startsWith(github.event.pull_request.head.ref, 'release-please--')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Request squash auto-merge
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+        run: >-
+          gh pr merge "$PR_URL"
+          --repo "$GITHUB_REPOSITORY"
+          --auto
+          --squash
+          --delete-branch
+          --match-head-commit "$PR_HEAD_SHA"
