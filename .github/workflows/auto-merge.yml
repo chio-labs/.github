@@ -2,10 +2,11 @@ name: Request Auto-Merge
 
 on:
   pull_request_target:
+    types: [opened, synchronize, reopened, ready_for_review]
 
 permissions:
-  contents: write
-  pull-requests: write
+  contents: read
+  pull-requests: read
 
 jobs:
   request-auto-merge:
@@ -15,9 +16,18 @@ jobs:
       !startsWith(github.event.pull_request.head.ref, 'release-please--')
     runs-on: ubuntu-latest
     steps:
+      - name: Create delivery token
+        id: delivery-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ vars.CHIO_DELIVERY_APP_ID }}
+          private-key: ${{ secrets.CHIO_DELIVERY_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: ${{ github.event.repository.name }}
+
       - name: Request squash auto-merge
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ steps.delivery-token.outputs.token }}
           PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
           PR_URL: ${{ github.event.pull_request.html_url }}
         run: >-
